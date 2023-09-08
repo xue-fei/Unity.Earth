@@ -35,27 +35,30 @@ public class EarthManager : MonoBehaviour
     public Dictionary<int, GameObject> MapFas = new Dictionary<int, GameObject>();
     private int nowLevel;
 
-    public int NowLevel {
-        get {
+    public int NowLevel
+    {
+        get
+        {
             return nowLevel;
 
         }
-        set {
+        set
+        {
             if (!MapFas.ContainsKey(value))
             {
                 GameObject obj = GameObject.Find(value.ToString());
-                if (obj==null)
+                if (obj == null)
                 {
                     obj = new GameObject(value.ToString());
                 }
                 MapFas.Add(value, obj);
             }
-            if (value!= nowLevel)
+            if (value != nowLevel)
             {
                 foreach (var item in MapFas)
                 {
-                    int i =Math.Abs( value - item.Key);
-                    if (i>2)
+                    int i = Math.Abs(value - item.Key);
+                    if (i > 2)
                     {
                         item.Value.SetActive(false);
                     }
@@ -66,26 +69,23 @@ public class EarthManager : MonoBehaviour
                 }
                 nowLevel = value;
             }
-           
-
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        Application.targetFrameRate = 60;
         //UrlPath = "file:\\D:\\BaiduNetdiskDownload\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
-
-         EarthStart(5);
-      
+        EarthStart(5);
     }
-
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-     CamerPosToMap();
+        CamerPosToMap();
     }
+
     #region 地球顶点创建
     /// <summary>
     /// 得到经纬点
@@ -96,13 +96,12 @@ public class EarthManager : MonoBehaviour
     /// <param name="LonValue">经度段</param>
     public Vector3 GetLatLonPinot(double unitlongiAngle, double halfSubdivisions, int LatValue, int LonValue)
     {
-
         //赤道与本初子午线交点
         Vector3 zeroPoint = new Vector3(EarthRadius, 0, 0);
         //得到经度
         double longiAngle = -unitlongiAngle * LonValue;
         //墨卡托Y值
-        double mercatorY = ((halfEarthLong / halfSubdivisions) *( halfSubdivisions - LatValue  )) ;//这里把墨卡托的Y值原点重赤道与本初子午线交点移动到左上角
+        double mercatorY = ((halfEarthLong / halfSubdivisions) * (halfSubdivisions - LatValue));//这里把墨卡托的Y值原点重赤道与本初子午线交点移动到左上角
 
         //  return GetLatitude(zeroPoint, longiAngle, mercatorY);
         return GetLatitude();
@@ -113,8 +112,8 @@ public class EarthManager : MonoBehaviour
         /// <param name="longiangle">经度角</param>
         /// <param name="mercatorY">墨卡托Y值</param>
         /// <returns></returns>
-       // Vector3 GetLatitude(Vector3 zeroPoint, float longiAngle, double mercatorY)
-      
+        // Vector3 GetLatitude(Vector3 zeroPoint, float longiAngle, double mercatorY)
+
         Vector3 GetLatitude()
         {
             //新建变换矩阵
@@ -123,28 +122,27 @@ public class EarthManager : MonoBehaviour
             //  double latitudeAngle = (180.000 / Math.PI) * (2 * Math.Atan(Math.Exp(((mercatorY / halfEarthLong) * 180.000) * Math.PI / 180.000)) - (Math.PI / 2));
             // double latitudeAngle = (Mathf.Rad2Deg) * (2 * Math.Atan(Math.Exp(((mercatorY / halfEarthLong) * 180.000) * Mathf.Deg2Rad)) - (Math.PI / 2));
             double latitudeAngle = mercatorTolat(mercatorY);
-            Rectify(ref longiAngle, ref latitudeAngle,1);
-          
+            Rectify(ref longiAngle, ref latitudeAngle, 1);
+
 
             //转四元数
             Quaternion quaternion = Quaternion.Euler(new Vector3(0, float.Parse(longiAngle.ToString()), float.Parse((latitudeAngle).ToString())));
             matRot.SetTRS(Vector3.zero, quaternion, new Vector3(1, 1, 1));
             return matRot.MultiplyPoint3x4(zeroPoint);
         }
-    
     }
- 
+
     public void EarthStart(int Level)
     {
         float subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         //赤道细分2的指数倍
-        ReturnSubParam(Level, out subdivisions, out unitlongiAngle,out halfSubdivisions);
+        ReturnSubParam(Level, out subdivisions, out unitlongiAngle, out halfSubdivisions);
         NowLevel = Level;
         for (int i = 0; i < subdivisions; i++)
         {
-            for (int j = 0; j < subdivisions ; j++)
+            for (int j = 0; j < subdivisions; j++)
             {
                 // Vector3 point = GetLatLonPinot(unitlongiAngle, halfSubdivisions, j, i);
                 ReadMap(unitlongiAngle, halfSubdivisions, j, i, Level);
@@ -152,6 +150,7 @@ public class EarthManager : MonoBehaviour
         }
         // ReadMap(unitlongiAngle, halfSubdivisions, 11, 12, Level);
     }
+
     /// <summary>
     /// 返回细分参数
     /// </summary>
@@ -162,12 +161,10 @@ public class EarthManager : MonoBehaviour
     void ReturnSubParam(int Level, out float subdivisions, out double unitlongiAngle, out double halfSubdivisions)
     {
         subdivisions = (float)Math.Pow(2, Level);
-        unitlongiAngle = (360.00000000000f / (subdivisions* 1.000000f));
-        Debug.Log(unitlongiAngle);
-        halfSubdivisions= subdivisions * 0.500000F;
+        unitlongiAngle = (360.00000000000f / (subdivisions * 1.000000f));
+        //Debug.Log(unitlongiAngle);
+        halfSubdivisions = subdivisions * 0.500000F;
     }
-
-
 
     void instancePoint(Vector3 POS, string NAME)
     {
@@ -195,6 +192,7 @@ public class EarthManager : MonoBehaviour
         ReturnSubParam(Level, out subdivisions, out unitlongiAngle, out halfSubdivisions);
         ReadMap(unitlongiAngle, halfSubdivisions, LatValue, LonValue, Level);
     }
+
     void ReadMap(double unitlongiAngle, double halfSubdivisions, int LatValue, int LonValue, int Level)
     {
         string mapID = Level + "&" + LatValue + "&" + LonValue;
@@ -212,9 +210,9 @@ public class EarthManager : MonoBehaviour
             IEnumerator getMap()
             {
                 //第一个参数是层级，第二个是纬度，第三个是经度
-                string url = UrlPath + "\\" + Level + "\\" + LatValue + "\\" + LonValue+".jpg";
-              //  string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
-                Debug.Log(url);
+                string url = UrlPath + "/" + Level + "/" + LatValue + "/" + LonValue + ".jpg";
+                //string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
+                //Debug.Log(url);
                 using (var webRequest = UnityWebRequestTexture.GetTexture(url))
                 {
                     yield return webRequest.SendWebRequest();
@@ -234,14 +232,13 @@ public class EarthManager : MonoBehaviour
                             Material mat = new Material(material);
                             mat.mainTexture = texture2D;
                             mat.renderQueue = 2000 + Level;//调整渲染列队
-                            CreatMesh( mat);
+                            CreatMesh(mat);
                         }
-
                     }
                 }
             }
-           // void CreatMesh(string mapID, Material mat)
-            void CreatMesh( Material mat)
+            // void CreatMesh(string mapID, Material mat)
+            void CreatMesh(Material mat)
             {
                 Vector3[] points = new Vector3[4];
                 points[0] = GetLatLonPinot(unitlongiAngle, halfSubdivisions, LatValue, LonValue);
@@ -268,13 +265,8 @@ public class EarthManager : MonoBehaviour
                 filter.mesh.RecalculateBounds();
                 MeshRenderer renderer = go.AddComponent<MeshRenderer>();
                 renderer.material = mat;
-            
-               
             }
         }
-
-     
-
     }
     #endregion
 
@@ -283,31 +275,30 @@ public class EarthManager : MonoBehaviour
     /// </summary>
     void CamerPosToMap()
     {
-     
         Vector3 zeroPoint = new Vector3(EarthRadius, 0, 0);
-        Vector3 camerVec = Camera.main.transform.position-Vector3.zero;
+        Vector3 camerVec = Camera.main.transform.position - Vector3.zero;
         float camDis = camerVec.magnitude;
-        double LonAngle =Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
-        if (LonAngle<0)
+        double LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
+        if (LonAngle < 0)
         {
             LonAngle = 360 + LonAngle;
         }
-        double LatAngle = Vector3.Angle( new Vector3(camerVec.x, 0, camerVec.z), camerVec);
+        double LatAngle = Vector3.Angle(new Vector3(camerVec.x, 0, camerVec.z), camerVec);
         double LatAngle1 = GetAngle(zeroPoint, new Vector3(EarthRadius, camerVec.y, 0));
-     
-        if (camerVec.y<0)
+
+        if (camerVec.y < 0)
         {
             LatAngle = -LatAngle;
         }
-        Rectify(ref LonAngle, ref LatAngle,3);
+        Rectify(ref LonAngle, ref LatAngle, 3);
         // Debug.Log(LatAngle);
-        NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - EarthRadius)*30/ EarthRadius))+ MinLevel;
+        NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - EarthRadius) * 30 / EarthRadius)) + MinLevel;
         float subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         ReturnSubParam(NowLevel, out subdivisions, out unitlongiAngle, out halfSubdivisions);
-        int LonValue = (int)subdivisions-(int)( LonAngle/ unitlongiAngle);
-       // Debug.Log(LonAngle+"&"+ unitlongiAngle);
+        int LonValue = (int)subdivisions - (int)(LonAngle / unitlongiAngle);
+        // Debug.Log(LonAngle+"&"+ unitlongiAngle);
         int LatValue = (int)((GetLatValue(LatAngle, halfSubdivisions)));
         // ReadMap(LatValue , LonValue-1 , Level);
         int length = (int)(NowLevel * 0.5f);
@@ -315,54 +306,63 @@ public class EarthManager : MonoBehaviour
         {
             for (int j = -length; j < length; j++)
             {
-                if (LonValue < subdivisions-1 && LonValue + i>= 0 && LatValue < subdivisions)
+                if (LonValue < subdivisions - 1 && LonValue + i >= 0 && LatValue < subdivisions)
                 {
                     ReadMap(LatValue + j, LonValue + i, NowLevel);
                 }
             }
         }
     }
-    int   GetLatValue(double LatAngle, double halfSubdivisions)
-    {
 
-        double mercatorY =  latToMercator(LatAngle);
-        int LatValue1 =(int) Math.Ceiling( ((mercatorY * halfSubdivisions) / halfEarthLong));
+    int GetLatValue(double LatAngle, double halfSubdivisions)
+    {
+        double mercatorY = latToMercator(LatAngle);
+        int LatValue1 = (int)Math.Ceiling(((mercatorY * halfSubdivisions) / halfEarthLong));
         int LatValue = (int)(halfSubdivisions - (LatAngle * halfSubdivisions / 180));
 
-       // Debug.Log(LatAngle + "&&" + halfSubdivisions + "&&" + LatValue1);
-
+        // Debug.Log(LatAngle + "&&" + halfSubdivisions + "&&" + LatValue1); 
         return (int)(halfSubdivisions - LatValue1);
     }
-    double GetAngle(Vector3 from,Vector3 to)
+
+    double GetAngle(Vector3 from, Vector3 to)
     {
         double fromMagni = from.magnitude;
         //Debug.Log(fromMagni);
         double toMagni = to.magnitude;
-       // Debug.Log(toMagni);
-        double fromToMagni = (to- from).magnitude;
-       // Debug.Log(fromToMagni);
+        // Debug.Log(toMagni);
+        double fromToMagni = (to - from).magnitude;
+        // Debug.Log(fromToMagni);
         double Angle = (Math.Pow(fromMagni, 2) + Math.Pow(toMagni, 2) - Math.Pow(fromToMagni, 2)) / (2 * fromMagni * toMagni);
-        return (Math.Acos(Angle)*(180/ Math.PI));
+        return (Math.Acos(Angle) * (180 / Math.PI));
     }
 
-    //墨卡托转纬度
+    /// <summary>
+    /// 墨卡托转纬度
+    /// </summary>
+    /// <param name="mercatorY"></param>
+    /// <returns></returns>
     double mercatorTolat(double mercatorY)
     {
 
-        double y = mercatorY/ halfEarthLong * 180.00000001;
+        double y = mercatorY / halfEarthLong * 180.00000001;
 
-        y = 180.00001F / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000001F)) - Math.PI *0.5000001F);
+        y = 180.00001F / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000001F)) - Math.PI * 0.5000001F);
 
         return y;
     }
-    //纬度转墨卡托
+
+    /// <summary>
+    /// 纬度转墨卡托
+    /// </summary>
+    /// <param name="lat"></param>
+    /// <returns></returns>
     double latToMercator(double lat)
     {
 
         double y = Math.Log(Math.Tan((90 + lat) * Math.PI / 360.000000001)) / (Math.PI / 180.0000000001);
 
         y = y * halfEarthLong / 180.00000000001;
-        
+
         return y;
     }
 
@@ -372,11 +372,17 @@ public class EarthManager : MonoBehaviour
         Vector3 vector = ((Vector3)(quaternion * new Vector3((float)0, (float)0, -EarthRadius)));
         return vector;
     }
-    void Rectify(ref double longiAngle, ref double latitudeAngle,int i)
+
+    void Rectify(ref double longiAngle, ref double latitudeAngle, int i)
     {
         // Debug.Log("longiAngle0=" + longiAngle);
-        longiAngle += (longiAngle * lonRectify)* i;
+        longiAngle += (longiAngle * lonRectify) * i;
         //Debug.Log("longiAngle1=" + longiAngle);
         latitudeAngle += (latitudeAngle * latRectify) * i;
+    }
+
+    private void OnApplicationQuit()
+    {
+        Resources.UnloadUnusedAssets();
     }
 }
