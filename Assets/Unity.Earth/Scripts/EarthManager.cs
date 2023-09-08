@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,13 +19,13 @@ public struct DoubleVector3
 
 public class EarthManager : MonoBehaviour
 {
-    //µØÇò³àµÀ°ë¾¶6378137Ã×
+    //åœ°çƒèµ¤é“åŠå¾„6378137ç±³
     public float EarthRadius = 6378.137f;
-    //Êı¾İµØÖ·
+    //æ•°æ®åœ°å€
     public string UrlPath = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/";
     public int MaxLevel = 14;
     public int MinLevel = 5;
-    //µØÇò³àµÀÖÜ³¤µÄÒ»°ë ³àµÀÖÜ³¤PI*r = 20037508.3427892
+    //åœ°çƒèµ¤é“å‘¨é•¿çš„ä¸€åŠ èµ¤é“å‘¨é•¿PI*r = 20037508.3427892
     double halfEarthLong = 20037508.3427892;
     public GameObject PointPro;
     public Material material;
@@ -74,7 +74,7 @@ public class EarthManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //UrlPath = "file:\\D:\\BaiduNetdiskDownload\\GISÍßÆ¬µØÍ¼×ÊÔ´\\GISÍßÆ¬µØÍ¼×ÊÔ´\\ÎÀĞÇµØÍ¼\\ÖĞ¹úÄ«¿¨ÍĞ±ê×¼TMSÍßÆ¬";
+        //UrlPath = "file:\\D:\\BaiduNetdiskDownload\\GISç“¦ç‰‡åœ°å›¾èµ„æº\\GISç“¦ç‰‡åœ°å›¾èµ„æº\\å«æ˜Ÿåœ°å›¾\\ä¸­å›½å¢¨å¡æ‰˜æ ‡å‡†TMSç“¦ç‰‡";
 
          EarthStart(5);
       
@@ -86,47 +86,47 @@ public class EarthManager : MonoBehaviour
     {
      CamerPosToMap();
     }
-    #region µØÇò¶¥µã´´½¨
+    #region åœ°çƒé¡¶ç‚¹åˆ›å»º
     /// <summary>
-    /// µÃµ½¾­Î³µã
+    /// å¾—åˆ°ç»çº¬ç‚¹
     /// </summary>
-    /// <param name="unitlongiAngle">µ¥Î»¾­¶È½Ç</param>
-    /// <param name="halfSubdivisions">Ò»°ëµÄÏ¸·ÖÖµ</param>
-    /// <param name="LatValue">Î³¶È¶Î</param>
-    /// <param name="LonValue">¾­¶È¶Î</param>
+    /// <param name="unitlongiAngle">å•ä½ç»åº¦è§’</param>
+    /// <param name="halfSubdivisions">ä¸€åŠçš„ç»†åˆ†å€¼</param>
+    /// <param name="LatValue">çº¬åº¦æ®µ</param>
+    /// <param name="LonValue">ç»åº¦æ®µ</param>
     public Vector3 GetLatLonPinot(double unitlongiAngle, double halfSubdivisions, int LatValue, int LonValue)
     {
 
-        //³àµÀÓë±¾³õ×ÓÎçÏß½»µã
+        //èµ¤é“ä¸æœ¬åˆå­åˆçº¿äº¤ç‚¹
         Vector3 zeroPoint = new Vector3(EarthRadius, 0, 0);
-        //µÃµ½¾­¶È
+        //å¾—åˆ°ç»åº¦
         double longiAngle = -unitlongiAngle * LonValue;
-        //Ä«¿¨ÍĞYÖµ
-        double mercatorY = ((halfEarthLong / halfSubdivisions) *( halfSubdivisions - LatValue  )) ;//ÕâÀï°ÑÄ«¿¨ÍĞµÄYÖµÔ­µãÖØ³àµÀÓë±¾³õ×ÓÎçÏß½»µãÒÆ¶¯µ½×óÉÏ½Ç
+        //å¢¨å¡æ‰˜Yå€¼
+        double mercatorY = ((halfEarthLong / halfSubdivisions) *( halfSubdivisions - LatValue  )) ;//è¿™é‡ŒæŠŠå¢¨å¡æ‰˜çš„Yå€¼åŸç‚¹é‡èµ¤é“ä¸æœ¬åˆå­åˆçº¿äº¤ç‚¹ç§»åŠ¨åˆ°å·¦ä¸Šè§’
 
         //  return GetLatitude(zeroPoint, longiAngle, mercatorY);
         return GetLatitude();
         /// <summary>
-        /// µÃµ½Î³¶È
+        /// å¾—åˆ°çº¬åº¦
         /// </summary>
-        /// <param name="zeroPoint">³àµÀÓë±¾³õ×ÓÎçÏß½»µã</param>
-        /// <param name="longiangle">¾­¶È½Ç</param>
-        /// <param name="mercatorY">Ä«¿¨ÍĞYÖµ</param>
+        /// <param name="zeroPoint">èµ¤é“ä¸æœ¬åˆå­åˆçº¿äº¤ç‚¹</param>
+        /// <param name="longiangle">ç»åº¦è§’</param>
+        /// <param name="mercatorY">å¢¨å¡æ‰˜Yå€¼</param>
         /// <returns></returns>
        // Vector3 GetLatitude(Vector3 zeroPoint, float longiAngle, double mercatorY)
       
         Vector3 GetLatitude()
         {
-            //ĞÂ½¨±ä»»¾ØÕó
+            //æ–°å»ºå˜æ¢çŸ©é˜µ
             Matrix4x4 matRot = new Matrix4x4();
-            //Äª¿¨ÍĞY×ªÎ³¶È
+            //è«å¡æ‰˜Yè½¬çº¬åº¦
             //  double latitudeAngle = (180.000 / Math.PI) * (2 * Math.Atan(Math.Exp(((mercatorY / halfEarthLong) * 180.000) * Math.PI / 180.000)) - (Math.PI / 2));
             // double latitudeAngle = (Mathf.Rad2Deg) * (2 * Math.Atan(Math.Exp(((mercatorY / halfEarthLong) * 180.000) * Mathf.Deg2Rad)) - (Math.PI / 2));
             double latitudeAngle = mercatorTolat(mercatorY);
             Rectify(ref longiAngle, ref latitudeAngle,1);
           
 
-            //×ªËÄÔªÊı
+            //è½¬å››å…ƒæ•°
             Quaternion quaternion = Quaternion.Euler(new Vector3(0, float.Parse(longiAngle.ToString()), float.Parse((latitudeAngle).ToString())));
             matRot.SetTRS(Vector3.zero, quaternion, new Vector3(1, 1, 1));
             return matRot.MultiplyPoint3x4(zeroPoint);
@@ -139,7 +139,7 @@ public class EarthManager : MonoBehaviour
         float subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
-        //³àµÀÏ¸·Ö2µÄÖ¸Êı±¶
+        //èµ¤é“ç»†åˆ†2çš„æŒ‡æ•°å€
         ReturnSubParam(Level, out subdivisions, out unitlongiAngle,out halfSubdivisions);
         NowLevel = Level;
         for (int i = 0; i < subdivisions; i++)
@@ -153,12 +153,12 @@ public class EarthManager : MonoBehaviour
         // ReadMap(unitlongiAngle, halfSubdivisions, 11, 12, Level);
     }
     /// <summary>
-    /// ·µ»ØÏ¸·Ö²ÎÊı
+    /// è¿”å›ç»†åˆ†å‚æ•°
     /// </summary>
-    /// <param name="Level">²ã¼¶</param>
-    /// <param name="subdivisions">·Ö¶Î</param>
-    /// <param name="unitlongiAngle">¾­¶Èµ¥Î»½Ç¶È</param>
-    /// <param name="halfSubdivisions">Ò»°ëµÄ·Ö¶Î</param>
+    /// <param name="Level">å±‚çº§</param>
+    /// <param name="subdivisions">åˆ†æ®µ</param>
+    /// <param name="unitlongiAngle">ç»åº¦å•ä½è§’åº¦</param>
+    /// <param name="halfSubdivisions">ä¸€åŠçš„åˆ†æ®µ</param>
     void ReturnSubParam(int Level, out float subdivisions, out double unitlongiAngle, out double halfSubdivisions)
     {
         subdivisions = (float)Math.Pow(2, Level);
@@ -178,15 +178,15 @@ public class EarthManager : MonoBehaviour
 
     #endregion
 
-    #region µÃµ½µØÍ¼
+    #region å¾—åˆ°åœ°å›¾
     /// <summary>
-    /// µÃµ½µØÍ¼ÍßÆ¬
+    /// å¾—åˆ°åœ°å›¾ç“¦ç‰‡
     /// </summary>
-    /// <param name="unitlongiAngle">Î³¶È</param>
-    /// <param name="halfSubdivisions">Ò»°ëµÄÏ¸·ÖÖµ</param>
-    /// <param name="LatValue">Î³¶È¶Î</param>
-    /// <param name="LonValue">¾­¶È¶Î</param>
-    /// <param name="Level">²ã¼¶</param>
+    /// <param name="unitlongiAngle">çº¬åº¦</param>
+    /// <param name="halfSubdivisions">ä¸€åŠçš„ç»†åˆ†å€¼</param>
+    /// <param name="LatValue">çº¬åº¦æ®µ</param>
+    /// <param name="LonValue">ç»åº¦æ®µ</param>
+    /// <param name="Level">å±‚çº§</param>
     void ReadMap(int LatValue, int LonValue, int Level)
     {
         float subdivisions;
@@ -211,7 +211,7 @@ public class EarthManager : MonoBehaviour
             StartCoroutine(getMap());
             IEnumerator getMap()
             {
-                //µÚÒ»¸ö²ÎÊıÊÇ²ã¼¶£¬µÚ¶ş¸öÊÇÎ³¶È£¬µÚÈı¸öÊÇ¾­¶È
+                //ç¬¬ä¸€ä¸ªå‚æ•°æ˜¯å±‚çº§ï¼Œç¬¬äºŒä¸ªæ˜¯çº¬åº¦ï¼Œç¬¬ä¸‰ä¸ªæ˜¯ç»åº¦
                 string url = UrlPath + "\\" + Level + "\\" + LatValue + "\\" + LonValue+".jpg";
               //  string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
                 Debug.Log(url);
@@ -232,7 +232,7 @@ public class EarthManager : MonoBehaviour
                         {
                             Material mat = new Material(material);
                             mat.mainTexture = texture2D;
-                            mat.renderQueue = 2000 + Level;//µ÷ÕûäÖÈ¾ÁĞ¶Ó
+                            mat.renderQueue = 2000 + Level;//è°ƒæ•´æ¸²æŸ“åˆ—é˜Ÿ
                             CreatMesh( mat);
                         }
 
@@ -278,7 +278,7 @@ public class EarthManager : MonoBehaviour
     #endregion
 
     /// <summary>
-    /// Í¨¹ıÏà»úÎ»ÖÃµ÷È¡µØÍ¼
+    /// é€šè¿‡ç›¸æœºä½ç½®è°ƒå–åœ°å›¾
     /// </summary>
     void CamerPosToMap()
     {
@@ -344,7 +344,7 @@ public class EarthManager : MonoBehaviour
         return (Math.Acos(Angle)*(180/ Math.PI));
     }
 
-    //Ä«¿¨ÍĞ×ªÎ³¶È
+    //å¢¨å¡æ‰˜è½¬çº¬åº¦
     double mercatorTolat(double mercatorY)
     {
 
@@ -354,7 +354,7 @@ public class EarthManager : MonoBehaviour
 
         return y;
     }
-    //Î³¶È×ªÄ«¿¨ÍĞ
+    //çº¬åº¦è½¬å¢¨å¡æ‰˜
     double latToMercator(double lat)
     {
 

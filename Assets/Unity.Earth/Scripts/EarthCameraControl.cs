@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +7,7 @@ public class EarthCameraControl : MonoBehaviour
 {
     private float eulerAngles_x;
     private float eulerAngles_y;
-   // private float distancePoint;//ÈÆµãĞı×ª¾àÀë
+   // private float distancePoint;//ç»•ç‚¹æ—‹è½¬è·ç¦»
     public EarthManager earthManager;
     public float SpeedRate;
     // Start is called before the first frame update
