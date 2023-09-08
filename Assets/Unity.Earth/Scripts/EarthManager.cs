@@ -230,6 +230,7 @@ public class EarthManager : MonoBehaviour
 
                         if (texture2D)
                         {
+                            texture2D.wrapMode = TextureWrapMode.Clamp;
                             Material mat = new Material(material);
                             mat.mainTexture = texture2D;
                             mat.renderQueue = 2000 + Level;//调整渲染列队
