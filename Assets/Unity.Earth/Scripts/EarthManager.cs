@@ -76,7 +76,10 @@ public class EarthManager : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 60;
-        //UrlPath = "file:\\D:\\BaiduNetdiskDownload\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
+        //UrlPath = "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer/tile/";
+        //UrlPath = "http://server.arcgisonline.com/arcgis/rest/services/USA_Topo_Maps/MapServer/tile/";
+        //UrlPath = "http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/";
+        //UrlPath = "file:\\C:\\Users\\XUEFEI\\Downloads\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
         EarthStart(5);
     }
 
@@ -209,7 +212,7 @@ public class EarthManager : MonoBehaviour
             StartCoroutine(getMap());
             IEnumerator getMap()
             {
-                //第一个参数是层级，第二个是纬度，第三个是经度
+                //第一个参数是层级，第二个是纬度，第三个是经度 
                 string url = UrlPath + "/" + Level + "/" + LatValue + "/" + LonValue + ".jpg";
                 //string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
                 //Debug.Log(url);
@@ -220,7 +223,7 @@ public class EarthManager : MonoBehaviour
                     if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                     {
                         Debug.Log(webRequest.error);
-                        StartCoroutine(getMap());
+                        //StartCoroutine(getMap());
                     }
                     else
                     {

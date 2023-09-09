@@ -537,7 +537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   earthManager: {fileID: 593400508}
-  SpeedRate: 200
+  SpeedRate: 150
 --- !u!1 &1243889960
 GameObject:
   m_ObjectHideFlags: 0
