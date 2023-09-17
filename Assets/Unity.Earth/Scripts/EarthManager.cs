@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -19,6 +20,7 @@ public struct DoubleVector3
 
 public class EarthManager : MonoBehaviour
 {
+    public GameObject earth;
     //地球赤道半径6378137米
     public float EarthRadius = 6378.137f;
     //数据地址
@@ -50,6 +52,7 @@ public class EarthManager : MonoBehaviour
                 if (obj == null)
                 {
                     obj = new GameObject(value.ToString());
+                    obj.transform.parent = earth.transform;
                 }
                 MapFas.Add(value, obj);
             }
@@ -76,6 +79,7 @@ public class EarthManager : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 60;
+        earth = new GameObject("Earth");
         //UrlPath = "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer/tile/";
         //UrlPath = "http://server.arcgisonline.com/arcgis/rest/services/USA_Topo_Maps/MapServer/tile/";
         //UrlPath = "http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/";
@@ -215,6 +219,7 @@ public class EarthManager : MonoBehaviour
                 //第一个参数是层级，第二个是纬度，第三个是经度 
                 string url = UrlPath + "/" + Level + "/" + LatValue + "/" + LonValue + ".jpg";
                 //string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
+                //url = "http://wprd03.is.autonavi.com/appmaptile?style=6&x="+ LonValue +"&y="+ LatValue +"&z="+ Level;
                 //Debug.Log(url);
                 using (var webRequest = UnityWebRequestTexture.GetTexture(url))
                 {
