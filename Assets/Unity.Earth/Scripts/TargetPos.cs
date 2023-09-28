@@ -14,5 +14,7 @@ public class TargetPos : MonoBehaviour
     {
         cameraControl.ToLocation( float.Parse(lon.text), float.Parse(lat.text), 2);
         prop.position= earthManager.ToLocationPos(float.Parse(lon.text), float.Parse(lat.text));
+
+        //prop.position = earthManager.GetSphericalCoordinates(double.Parse(lon.text), double.Parse(lat.text));
     }
 }

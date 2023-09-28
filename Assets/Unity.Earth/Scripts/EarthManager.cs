@@ -84,7 +84,7 @@ public class EarthManager : MonoBehaviour
         //UrlPath = "http://server.arcgisonline.com/arcgis/rest/services/USA_Topo_Maps/MapServer/tile/";
         //UrlPath = "http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/";
         //UrlPath = "file:\\C:\\Users\\XUEFEI\\Downloads\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
-        EarthStart(5);
+        EarthStart(MinLevel);
     }
 
     // Update is called once per frame
@@ -246,6 +246,7 @@ public class EarthManager : MonoBehaviour
                 }
             }
             // void CreatMesh(string mapID, Material mat)
+            Debug.LogWarning("unitlongiAngle:" + unitlongiAngle + " LonValue:" + LonValue + " LatValue:" + LatValue);
             void CreatMesh(Material mat)
             {
                 Vector3[] points = new Vector3[4];
@@ -307,14 +308,14 @@ public class EarthManager : MonoBehaviour
         ReturnSubParam(NowLevel, out subdivisions, out unitlongiAngle, out halfSubdivisions);
         int LonValue = (int)subdivisions - (int)(LonAngle / unitlongiAngle);
         // Debug.Log(LonAngle+"&"+ unitlongiAngle);
-        int LatValue = (int)((GetLatValue(LatAngle, halfSubdivisions)));
+        int LatValue = GetLatValue(LatAngle, halfSubdivisions);
         // ReadMap(LatValue , LonValue-1 , Level);
         int length = (int)(NowLevel * 0.5f);
         for (int i = -length; i < length; i++)
         {
             for (int j = -length; j < length; j++)
             {
-                if (LonValue < subdivisions - 1 && LonValue + i >= 0 && LatValue < subdivisions)
+                if (LonValue < subdivisions - 1 && LonValue + i >= 0 && LatValue < subdivisions && LatValue + j >= 0)
                 {
                     ReadMap(LatValue + j, LonValue + i, NowLevel);
                 }
@@ -379,6 +380,22 @@ public class EarthManager : MonoBehaviour
         Quaternion quaternion = Quaternion.Euler(lat, 90 - lon, (float)0);
         Vector3 vector = ((Vector3)(quaternion * new Vector3((float)0, (float)0, -EarthRadius)));
         return vector;
+    }
+
+    /// <summary>
+    /// 根据经纬度计算球面坐标
+    /// </summary>
+    /// <param name="longitude">经度</param>
+    /// <param name="latitude">纬度</param>
+    /// <returns></returns>
+    public Vector3 GetSphericalCoordinates(double longitude, double latitude)
+    {
+        latitude = latitude * Mathf.PI / 180D;
+        longitude = longitude * Mathf.PI / 180D;
+        double x = EarthRadius * Mathf.Cos((float)latitude) * Mathf.Sin((float)longitude);
+        double y = EarthRadius * Mathf.Sin((float)latitude);
+        double z = -EarthRadius * Mathf.Cos((float)latitude) * Mathf.Cos((float)longitude);
+        return new Vector3((float)x, (float)y, (float)z);
     }
 
     void Rectify(ref double longiAngle, ref double latitudeAngle, int i)
