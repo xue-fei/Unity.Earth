@@ -37,6 +37,8 @@ public class EarthManager : MonoBehaviour
     public Dictionary<int, GameObject> MapFas = new Dictionary<int, GameObject>();
     private int nowLevel;
 
+    string tempMapPath;
+
     public int NowLevel
     {
         get
@@ -78,6 +80,11 @@ public class EarthManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        tempMapPath = Application.dataPath + "/../TempMap/";
+        if(!Directory.Exists(tempMapPath))
+        {
+            Directory.CreateDirectory(tempMapPath);
+        }
         Application.targetFrameRate = 60;
         earth = new GameObject("Earth");
         //UrlPath = "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer/tile/";
@@ -219,10 +226,12 @@ public class EarthManager : MonoBehaviour
                 //第一个参数是层级，第二个是纬度，第三个是经度 
                 string url = UrlPath + "/" + Level + "/" + LatValue + "/" + LonValue + ".jpg";
                 //string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
-                //url = "http://wprd03.is.autonavi.com/appmaptile?style=6&x="+ LonValue +"&y="+ LatValue +"&z="+ Level;
+                url = "http://wprd03.is.autonavi.com/appmaptile?style=6&x="+ LonValue +"&y="+ LatValue +"&z="+ Level;
                 //Debug.Log(url);
                 using (var webRequest = UnityWebRequestTexture.GetTexture(url))
                 {
+                    webRequest.certificateHandler = new WebRequestSkipCertificate();
+                    webRequest.timeout = 5000;
                     yield return webRequest.SendWebRequest();
 
                     if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)

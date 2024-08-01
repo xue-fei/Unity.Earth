@@ -21,7 +21,6 @@ public class EarthCameraControl : MonoBehaviour
     {
         if (Input.GetMouseButton(1))
         {
-            Debug.Log(transform.name);
             PointRot();
         }
         if (Input.GetAxis("Mouse ScrollWheel") < 0)
