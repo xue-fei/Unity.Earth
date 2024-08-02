@@ -5,26 +5,17 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public struct DoubleVector3
-{
-    public DoubleVector3(double my_x, double my_y, double my_z)
-    {
-        x = my_x;
-        y = my_y;
-        z = my_z;
-    }
-    public double x;
-    public double y;
-    public double z;
-}
-
 public class EarthManager : MonoBehaviour
 {
     public GameObject earth;
     //地球赤道半径6378137米
     public float EarthRadius = 6378.137f;
     //数据地址
-    public string UrlPath = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/";
+    /// <summary>
+    /// ArcGIS level,lat,lon
+    /// AutoNavi lon,lat,level
+    /// </summary>
+    public string mapUrl = "";
     public int MaxLevel = 14;
     public int MinLevel = 5;
     //地球赤道周长的一半 赤道周长PI*r = 20037508.3427892
@@ -36,8 +27,47 @@ public class EarthManager : MonoBehaviour
     public double lonRectify = 3.5e-05;
     public Dictionary<int, GameObject> MapFas = new Dictionary<int, GameObject>();
     private int nowLevel;
-
+    public MapChannel mapChannel = MapChannel.ArcGIS;
     string tempMapPath;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Application.targetFrameRate = 60;
+
+        tempMapPath = Application.dataPath + "/../TempMap/";
+        if (!Directory.Exists(tempMapPath))
+        {
+            Directory.CreateDirectory(tempMapPath);
+        }
+        if (!Directory.Exists(tempMapPath + mapChannel.ToString()))
+        {
+            Directory.CreateDirectory(tempMapPath + mapChannel.ToString());
+        }
+        switch (mapChannel)
+        {
+            case MapChannel.ArcGIS:
+                mapUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{0}/{1}/{2}.jpg";
+                break;
+            case MapChannel.AutoNavi:
+                mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=9&x={2}&y={1}&z={0}";
+                break;
+        }
+        tempMapPath = tempMapPath + mapChannel.ToString() + "/";
+
+        earth = new GameObject("Earth");
+        //UrlPath = "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer/tile/";
+        //UrlPath = "http://server.arcgisonline.com/arcgis/rest/services/USA_Topo_Maps/MapServer/tile/";
+        //UrlPath = "http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/";
+        //UrlPath = "file:\\C:\\Users\\XUEFEI\\Downloads\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
+        EarthStart(MinLevel);
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        CamerPosToMap();
+    }
 
     public int NowLevel
     {
@@ -50,6 +80,7 @@ public class EarthManager : MonoBehaviour
         {
             if (!MapFas.ContainsKey(value))
             {
+                Debug.Log("value:" + value);
                 GameObject obj = GameObject.Find(value.ToString());
                 if (obj == null)
                 {
@@ -75,29 +106,6 @@ public class EarthManager : MonoBehaviour
                 nowLevel = value;
             }
         }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        tempMapPath = Application.dataPath + "/../TempMap/";
-        if(!Directory.Exists(tempMapPath))
-        {
-            Directory.CreateDirectory(tempMapPath);
-        }
-        Application.targetFrameRate = 60;
-        earth = new GameObject("Earth");
-        //UrlPath = "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer/tile/";
-        //UrlPath = "http://server.arcgisonline.com/arcgis/rest/services/USA_Topo_Maps/MapServer/tile/";
-        //UrlPath = "http://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/";
-        //UrlPath = "file:\\C:\\Users\\XUEFEI\\Downloads\\GIS瓦片地图资源\\GIS瓦片地图资源\\卫星地图\\中国墨卡托标准TMS瓦片";
-        EarthStart(MinLevel);
-    }
-
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        CamerPosToMap();
     }
 
     #region 地球顶点创建
@@ -148,7 +156,7 @@ public class EarthManager : MonoBehaviour
 
     public void EarthStart(int Level)
     {
-        float subdivisions;
+        double subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         //赤道细分2的指数倍
@@ -158,11 +166,9 @@ public class EarthManager : MonoBehaviour
         {
             for (int j = 0; j < subdivisions; j++)
             {
-                // Vector3 point = GetLatLonPinot(unitlongiAngle, halfSubdivisions, j, i);
                 ReadMap(unitlongiAngle, halfSubdivisions, j, i, Level);
             }
         }
-        // ReadMap(unitlongiAngle, halfSubdivisions, 11, 12, Level);
     }
 
     /// <summary>
@@ -172,12 +178,12 @@ public class EarthManager : MonoBehaviour
     /// <param name="subdivisions">分段</param>
     /// <param name="unitlongiAngle">经度单位角度</param>
     /// <param name="halfSubdivisions">一半的分段</param>
-    void ReturnSubParam(int Level, out float subdivisions, out double unitlongiAngle, out double halfSubdivisions)
+    void ReturnSubParam(int Level, out double subdivisions, out double unitlongiAngle, out double halfSubdivisions)
     {
-        subdivisions = (float)Math.Pow(2, Level);
-        unitlongiAngle = (360.00000000000f / (subdivisions * 1.000000f));
+        subdivisions = Math.Pow(2, Level);
+        unitlongiAngle = (360.00000000000d / (subdivisions * 1.000000d));
         //Debug.Log(unitlongiAngle);
-        halfSubdivisions = subdivisions * 0.500000F;
+        halfSubdivisions = subdivisions * 0.500000d;
     }
 
     void instancePoint(Vector3 POS, string NAME)
@@ -200,7 +206,7 @@ public class EarthManager : MonoBehaviour
     /// <param name="Level">层级</param>
     void ReadMap(int LatValue, int LonValue, int Level)
     {
-        float subdivisions;
+        double subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         ReturnSubParam(Level, out subdivisions, out unitlongiAngle, out halfSubdivisions);
@@ -212,11 +218,6 @@ public class EarthManager : MonoBehaviour
         string mapID = Level + "&" + LatValue + "&" + LonValue;
         if (!mapDic.ContainsKey(mapID))
         {
-            //GameObject Fa = GameObject.Find(Level.ToString());
-            //if (Fa == null)
-            //{
-            //    Fa = new GameObject(Level.ToString());
-            //}
             GameObject go = new GameObject(mapID);
             go.transform.parent = MapFas[Level].transform;
             mapDic.Add(mapID, go);
@@ -224,10 +225,17 @@ public class EarthManager : MonoBehaviour
             IEnumerator getMap()
             {
                 //第一个参数是层级，第二个是纬度，第三个是经度 
-                string url = UrlPath + "/" + Level + "/" + LatValue + "/" + LonValue + ".jpg";
-                //string url = UrlPath + "&x=" + LonValue + "&y=" + LatValue + "&z=" + Level;//https://gac-geo.googlecnapps.cn/maps/vt?lyrs=s
-                url = "http://wprd03.is.autonavi.com/appmaptile?style=6&x="+ LonValue +"&y="+ LatValue +"&z="+ Level;
-                //Debug.Log(url);
+                string url = string.Format(mapUrl, Level, LatValue, LonValue);
+                bool local = false;
+                if (File.Exists(tempMapPath + Level + "/" + LatValue + "/" + LonValue + ".jpg"))
+                {
+                    url = "file://" + tempMapPath + Level + "/" + LatValue + "/" + LonValue + ".jpg";
+                    local = true;
+                }
+                if (!Directory.Exists(tempMapPath + Level + "/" + LatValue))
+                {
+                    Directory.CreateDirectory(tempMapPath + Level + "/" + LatValue);
+                }
                 using (var webRequest = UnityWebRequestTexture.GetTexture(url))
                 {
                     webRequest.certificateHandler = new WebRequestSkipCertificate();
@@ -237,7 +245,6 @@ public class EarthManager : MonoBehaviour
                     if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                     {
                         Debug.Log(webRequest.error);
-                        //StartCoroutine(getMap());
                     }
                     else
                     {
@@ -248,13 +255,17 @@ public class EarthManager : MonoBehaviour
                             texture2D.wrapMode = TextureWrapMode.Clamp;
                             Material mat = new Material(material);
                             mat.mainTexture = texture2D;
-                            mat.renderQueue = 2000 + Level;//调整渲染列队
+                            mat.renderQueue = 2000 + Level * 2;//调整渲染列队
                             CreatMesh(mat);
+                            if (!local)
+                            {
+                                File.WriteAllBytes(tempMapPath + Level + "/" + LatValue + "/" + LonValue + ".jpg", texture2D.EncodeToJPG());
+                            }
                         }
                     }
                 }
             }
-            // void CreatMesh(string mapID, Material mat)
+
             Debug.LogWarning("unitlongiAngle:" + unitlongiAngle + " LonValue:" + LonValue + " LatValue:" + LatValue);
             void CreatMesh(Material mat)
             {
@@ -286,6 +297,7 @@ public class EarthManager : MonoBehaviour
             }
         }
     }
+
     #endregion
 
     /// <summary>
@@ -311,7 +323,7 @@ public class EarthManager : MonoBehaviour
         Rectify(ref LonAngle, ref LatAngle, 3);
         // Debug.Log(LatAngle);
         NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - EarthRadius) * 30 / EarthRadius)) + MinLevel;
-        float subdivisions;
+        double subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         ReturnSubParam(NowLevel, out subdivisions, out unitlongiAngle, out halfSubdivisions);
@@ -362,9 +374,9 @@ public class EarthManager : MonoBehaviour
     double mercatorTolat(double mercatorY)
     {
 
-        double y = mercatorY / halfEarthLong * 180.00000001;
+        double y = mercatorY / halfEarthLong * 180.0000000d;
 
-        y = 180.00001F / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000001F)) - Math.PI * 0.5000001F);
+        y = 180.00001F / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000000d)) - Math.PI * 0.5000000d);
 
         return y;
     }
@@ -418,5 +430,17 @@ public class EarthManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         Resources.UnloadUnusedAssets();
+    }
+
+    /// <summary>
+    /// 地图渠道
+    /// </summary>
+    public enum MapChannel
+    {
+        ArcGIS,
+        /// <summary>
+        /// 高德
+        /// </summary>
+        AutoNavi
     }
 }

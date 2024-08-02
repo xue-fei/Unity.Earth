@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -205,7 +205,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 31.89964
+  m_Text: 31.9868284
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -516,14 +516,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f443d5194651e42ae398fddadd0a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  earth: {fileID: 0}
   EarthRadius: 637.8137
-  UrlPath: https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/
+  mapUrl: https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/
   MaxLevel: 19
   MinLevel: 5
   PointPro: {fileID: 5899192305379775816, guid: 6566abe88d8990f4ebad34c183add9b8, type: 3}
   material: {fileID: 2100000, guid: b86849b2a6c967344966ce2a32324186, type: 2}
   latRectify: 0.00012
   lonRectify: 0.000038
+  mapChannel: 1
 --- !u!114 &593400509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,7 +688,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 31.89964
+  m_Text: 31.9868284
 --- !u!222 &1341005869
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -877,7 +879,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 118.90654
+  m_Text: 118.7402105
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -1096,7 +1098,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 118.90654
+  m_Text: 118.7402105
 --- !u!222 &1752653036
 CanvasRenderer:
   m_ObjectHideFlags: 0
