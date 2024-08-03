@@ -12,8 +12,7 @@ public class EarthManager : MonoBehaviour
     public float EarthRadius = 6378.137f;
     //数据地址
     /// <summary>
-    /// ArcGIS level,lat,lon
-    /// AutoNavi lon,lat,level
+    /// level,lat,lon
     /// </summary>
     public string mapUrl = "";
     public int MaxLevel = 14;
@@ -47,11 +46,14 @@ public class EarthManager : MonoBehaviour
         switch (mapChannel)
         {
             case MapChannel.ArcGIS:
-                mapUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{0}/{1}/{2}.jpg";
+                mapUrl = MapUrl.ArcGIS;
                 break;
             case MapChannel.AutoNavi:
-                mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=9&x={2}&y={1}&z={0}";
+                mapUrl = MapUrl.AutoNavi;
                 break;
+                case MapChannel.BaiDu:
+                mapUrl = MapUrl.BaiDu; 
+                break; 
         }
         tempMapPath = tempMapPath + mapChannel.ToString() + "/";
 
@@ -125,16 +127,7 @@ public class EarthManager : MonoBehaviour
         //墨卡托Y值
         double mercatorY = ((halfEarthLong / halfSubdivisions) * (halfSubdivisions - LatValue));//这里把墨卡托的Y值原点重赤道与本初子午线交点移动到左上角
 
-        //  return GetLatitude(zeroPoint, longiAngle, mercatorY);
         return GetLatitude();
-        /// <summary>
-        /// 得到纬度
-        /// </summary>
-        /// <param name="zeroPoint">赤道与本初子午线交点</param>
-        /// <param name="longiangle">经度角</param>
-        /// <param name="mercatorY">墨卡托Y值</param>
-        /// <returns></returns>
-        // Vector3 GetLatitude(Vector3 zeroPoint, float longiAngle, double mercatorY)
 
         Vector3 GetLatitude()
         {
@@ -145,7 +138,6 @@ public class EarthManager : MonoBehaviour
             // double latitudeAngle = (Mathf.Rad2Deg) * (2 * Math.Atan(Math.Exp(((mercatorY / halfEarthLong) * 180.000) * Mathf.Deg2Rad)) - (Math.PI / 2));
             double latitudeAngle = mercatorTolat(mercatorY);
             Rectify(ref longiAngle, ref latitudeAngle, 1);
-
 
             //转四元数
             Quaternion quaternion = Quaternion.Euler(new Vector3(0, float.Parse(longiAngle.ToString()), float.Parse((latitudeAngle).ToString())));
@@ -255,7 +247,7 @@ public class EarthManager : MonoBehaviour
                             texture2D.wrapMode = TextureWrapMode.Clamp;
                             Material mat = new Material(material);
                             mat.mainTexture = texture2D;
-                            mat.renderQueue = 2000 + Level * 2;//调整渲染列队
+                            mat.renderQueue = 2000 + Level * 40;//调整渲染列队
                             CreatMesh(mat);
                             if (!local)
                             {
@@ -373,10 +365,9 @@ public class EarthManager : MonoBehaviour
     /// <returns></returns>
     double mercatorTolat(double mercatorY)
     {
-
         double y = mercatorY / halfEarthLong * 180.0000000d;
 
-        y = 180.00001F / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000000d)) - Math.PI * 0.5000000d);
+        y = 180.00000d / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000000d)) - Math.PI * 0.5000000d);
 
         return y;
     }
@@ -389,9 +380,9 @@ public class EarthManager : MonoBehaviour
     double latToMercator(double lat)
     {
 
-        double y = Math.Log(Math.Tan((90 + lat) * Math.PI / 360.000000001)) / (Math.PI / 180.0000000001);
+        double y = Math.Log(Math.Tan((90 + lat) * Math.PI / 360.00000000d)) / (Math.PI / 180.000000000d);
 
-        y = y * halfEarthLong / 180.00000000001;
+        y = y * halfEarthLong / 180.0000000000d;
 
         return y;
     }
@@ -430,17 +421,5 @@ public class EarthManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         Resources.UnloadUnusedAssets();
-    }
-
-    /// <summary>
-    /// 地图渠道
-    /// </summary>
-    public enum MapChannel
-    {
-        ArcGIS,
-        /// <summary>
-        /// 高德
-        /// </summary>
-        AutoNavi
-    }
+    } 
 }
