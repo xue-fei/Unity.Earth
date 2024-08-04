@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// 地图类型
 /// </summary>
-public enum MapType  
+public enum MapType
 {
     /// <summary>
     /// 卫星

@@ -9,8 +9,4 @@ public enum MapChannel
     /// 高德
     /// </summary>
     AutoNavi,
-    /// <summary>
-    /// 百度
-    /// </summary>
-    BaiDu,
 }

@@ -525,7 +525,7 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: b86849b2a6c967344966ce2a32324186, type: 2}
   latRectify: 0.00012
   lonRectify: 0.000038
-  mapChannel: 1
+  mapChannel: 0
 --- !u!114 &593400509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -540,6 +540,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   earthManager: {fileID: 593400508}
   SpeedRate: 150
+  distance: 0
 --- !u!1 &1243889960
 GameObject:
   m_ObjectHideFlags: 0

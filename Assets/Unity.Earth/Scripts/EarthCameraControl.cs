@@ -6,9 +6,12 @@ public class EarthCameraControl : MonoBehaviour
 {
     private float eulerAngles_x;
     private float eulerAngles_y;
-    // private float distancePoint;//绕点旋转距离
     public EarthManager earthManager;
     public float SpeedRate;
+    /// <summary>
+    /// 距离
+    /// </summary>
+    public float distance;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +22,7 @@ public class EarthCameraControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        distance = Vector3.Distance(Vector3.zero, transform.position);
         if (Input.GetMouseButton(1))
         {
             PointRot();
@@ -38,19 +42,16 @@ public class EarthCameraControl : MonoBehaviour
 
     float Speed()
     {
-        //float B = (earthManager.EarthRadius) / (transform.position.magnitude - earthManager.EarthRadius);
-
-        //return SpeedRate/Mathf.Exp(B);
-
+        //float B = (earthManager.EarthRadius) / (transform.position.magnitude - earthManager.EarthRadius); 
+        //return SpeedRate/Mathf.Exp(B); 
         float B = (transform.position.magnitude - earthManager.EarthRadius) / (earthManager.EarthRadius);
         return SpeedRate * (B);
     }
 
     void PointRot()
     {
-        Vector3 eulerAngles = transform.eulerAngles;
-        this.eulerAngles_x = eulerAngles.y;
-        this.eulerAngles_y = eulerAngles.x;
+        this.eulerAngles_x = transform.eulerAngles.y;
+        this.eulerAngles_y = transform.eulerAngles.x;
         float distancePoint = Vector3.Distance(transform.position, Vector3.zero);
         this.eulerAngles_x += (Input.GetAxis("Mouse X")) * Speed() * 0.01f;
         this.eulerAngles_y -= (Input.GetAxis("Mouse Y")) * Speed() * 0.01f;
@@ -65,6 +66,7 @@ public class EarthCameraControl : MonoBehaviour
         Quaternion from = Quaternion.Euler(transform.eulerAngles);
         Quaternion to = Quaternion.Euler(lat, 90 - lon, (float)0);
         float distancePoint = Vector3.Distance(transform.position, Vector3.zero);
+        Debug.Log("distancePoint=" + distancePoint);
         StartCoroutine(DelayTime(move));
         IEnumerator DelayTime(Action<float> action)
         {
@@ -80,7 +82,6 @@ public class EarthCameraControl : MonoBehaviour
         }
         void move(float t)
         {
-            Debug.Log("distancePoint=" + distancePoint);
             Quaternion quaternion = Quaternion.Lerp(from, to, t);
             Vector3 vector = ((Vector3)(quaternion * new Vector3((float)0, (float)0, -distancePoint)));
             transform.rotation = quaternion;
