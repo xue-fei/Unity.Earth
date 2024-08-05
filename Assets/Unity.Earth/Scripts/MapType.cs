@@ -4,6 +4,11 @@
 /// </summary>
 public enum MapType
 {
+    None,
+    /// <summary>
+    /// 地形
+    /// </summary>
+    Terrain,
     /// <summary>
     /// 卫星
     /// </summary>
@@ -12,5 +17,4 @@ public enum MapType
     /// 路网
     /// </summary>
     RoadMap,
-
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class TargetPos : MonoBehaviour
@@ -12,9 +10,8 @@ public class TargetPos : MonoBehaviour
     public Transform prop;
     public void CameraToTarget()
     {
-        cameraControl.ToLocation( float.Parse(lon.text), float.Parse(lat.text), 2);
-        prop.position= earthManager.ToLocationPos(float.Parse(lon.text), float.Parse(lat.text));
-
+        cameraControl.ToLocation(float.Parse(lon.text), float.Parse(lat.text), 2);
+        prop.position = Earth.ToLocationPos(float.Parse(lon.text), float.Parse(lat.text));
         //prop.position = earthManager.GetSphericalCoordinates(double.Parse(lon.text), double.Parse(lat.text));
     }
 }

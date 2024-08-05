@@ -44,7 +44,7 @@ public class EarthCameraControl : MonoBehaviour
     {
         //float B = (earthManager.EarthRadius) / (transform.position.magnitude - earthManager.EarthRadius); 
         //return SpeedRate/Mathf.Exp(B); 
-        float B = (transform.position.magnitude - earthManager.EarthRadius) / (earthManager.EarthRadius);
+        float B = (transform.position.magnitude - Earth.radius) / (Earth.radius);
         return SpeedRate * (B);
     }
 

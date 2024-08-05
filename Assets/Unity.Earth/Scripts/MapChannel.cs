@@ -4,6 +4,7 @@
 /// </summary>
 public enum MapChannel
 {
+    None,
     ArcGIS,
     /// <summary>
     /// 高德
