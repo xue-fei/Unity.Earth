@@ -5,6 +5,7 @@ public class Earth
 {
     /// <summary>
     /// 地球赤道半径6378137米
+    /// 单位万米
     /// </summary>
     public static float radius = 637.8137f;
 

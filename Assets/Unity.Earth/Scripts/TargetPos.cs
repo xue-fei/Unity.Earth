@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class TargetPos : MonoBehaviour
 {
-    public EarthCameraControl cameraControl;
+    public CameraControl cameraControl;
     public EarthManager earthManager;
     public InputField lat;
     public InputField lon;

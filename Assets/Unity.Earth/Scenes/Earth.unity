@@ -1576,7 +1576,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 20000
+  far clip plane: 2000000
   field of view: 20
   orthographic: 0
   orthographic size: 5
@@ -1634,11 +1634,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 593400504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12edb26404720844d8405a1baf7b32fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 8342960cb39d1c546848b5e73880ddae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  earthManager: {fileID: 593400508}
-  SpeedRate: 150
+  speed: 150
   distance: 0
 --- !u!1 &791078948
 GameObject:
