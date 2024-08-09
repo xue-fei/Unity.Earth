@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour
 {
-    private float eulerAngles_x;
-    private float eulerAngles_y;
     public float speed = 150;
     /// <summary>
     /// 距离
@@ -14,11 +12,13 @@ public class CameraControl : MonoBehaviour
 
     float distanceMin = 0.1f;
     float distanceMax = 16000f;
+    public Vector3 currentEulerAngles;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        //currentEulerAngles = transform.eulerAngles;
+        PointRot();
     }
 
     // Update is called once per frame
@@ -47,12 +47,11 @@ public class CameraControl : MonoBehaviour
 
     void PointRot()
     {
-        eulerAngles_x = transform.eulerAngles.y;
-        eulerAngles_y = transform.eulerAngles.x;
+        currentEulerAngles.z = 0;
+        currentEulerAngles.x += Input.GetAxis("Mouse X") * Speed() * 0.01f;
+        currentEulerAngles.y -= Input.GetAxis("Mouse Y") * Speed() * 0.01f;
         distance = Vector3.Distance(transform.position, Vector3.zero);
-        eulerAngles_x += (Input.GetAxis("Mouse X")) * Speed() * 0.01f;
-        eulerAngles_y -= (Input.GetAxis("Mouse Y")) * Speed() * 0.01f;
-        Quaternion quaternion = Quaternion.Euler(eulerAngles_y, eulerAngles_x, 0);
+        Quaternion quaternion = Quaternion.Euler(currentEulerAngles.y, currentEulerAngles.x, 0);
         Vector3 vector = quaternion * new Vector3(0, 0, -distance);
         transform.rotation = quaternion;
         transform.position = vector;
@@ -82,6 +81,8 @@ public class CameraControl : MonoBehaviour
             Vector3 vector = quaternion * new Vector3(0, 0, -distance);
             transform.rotation = quaternion;
             transform.position = vector;
+            currentEulerAngles.x = transform.eulerAngles.y;
+            currentEulerAngles.y = transform.eulerAngles.x;
         }
     }
 }

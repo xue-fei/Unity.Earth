@@ -31,7 +31,7 @@ public class MapLayer : MonoBehaviour
 
     }
 
-    public void Init(GameObject earth, MapChannel mapChannel, MapType mapType,Material material, int renderQueueAdd)
+    public void Init(GameObject earth, MapChannel mapChannel, MapType mapType, Material material, int renderQueueAdd)
     {
         this.earth = earth;
         this.mapChannel = mapChannel;
@@ -46,20 +46,23 @@ public class MapLayer : MonoBehaviour
                 break;
             case MapChannel.AutoNavi:
                 mapUrl = MapUrl.AutoNavi;
-                if(mapType == MapType.Satellite)
+                if (mapType == MapType.Satellite)
                 {
                     mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
                 }
-                if(mapType == MapType.RoadMap)
+                if (mapType == MapType.RoadMap)
                 {
                     mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=8&x={2}&y={1}&z={0}";
                 }
                 break;
         }
-        tempMapPath = tempMapPath + mapChannel.ToString() + "/" + mapType.ToString() + "/";
-        if (!Directory.Exists(tempMapPath))
+        if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
-            Directory.CreateDirectory(tempMapPath);
+            tempMapPath = tempMapPath + mapChannel.ToString() + "/" + mapType.ToString() + "/";
+            if (!Directory.Exists(tempMapPath))
+            {
+                Directory.CreateDirectory(tempMapPath);
+            }
         }
         layer = new GameObject(mapType.ToString());
         layer.transform.parent = earth.transform;
@@ -73,21 +76,26 @@ public class MapLayer : MonoBehaviour
         CamerPosToMap();
     }
 
+    Vector3 zeroPoint;
+    Vector3 camerVec;
+    float camDis;
+    double LonAngle;
+    double LatAngle;
     /// <summary>
     /// 通过相机位置调取地图
     /// </summary>
     void CamerPosToMap()
     {
-        Vector3 zeroPoint = new Vector3(Earth.radius, 0, 0);
-        Vector3 camerVec = Camera.main.transform.position - Vector3.zero;
-        float camDis = camerVec.magnitude;
-        double LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
+        zeroPoint = new Vector3(Earth.radius, 0, 0);
+        camerVec = Camera.main.transform.position - Vector3.zero;
+        camDis = camerVec.magnitude;
+        LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
         if (LonAngle < 0)
         {
             LonAngle = 360 + LonAngle;
         }
-        double LatAngle = Vector3.Angle(new Vector3(camerVec.x, 0, camerVec.z), camerVec);
-        double LatAngle1 = Earth.GetAngle(zeroPoint, new Vector3(Earth.radius, camerVec.y, 0));
+        LatAngle = Vector3.Angle(new Vector3(camerVec.x, 0, camerVec.z), camerVec);
+        //double LatAngle1 = Earth.GetAngle(zeroPoint, new Vector3(Earth.radius, camerVec.y, 0));
 
         if (camerVec.y < 0)
         {
@@ -131,7 +139,7 @@ public class MapLayer : MonoBehaviour
         {
             if (!MapFas.ContainsKey(value))
             {
-                if(layer == null)
+                if (layer == null)
                 {
                     return;
                 }
@@ -227,31 +235,53 @@ public class MapLayer : MonoBehaviour
             GameObject go = new GameObject(mapID);
             go.transform.parent = MapFas[level].transform;
             mapDic.Add(mapID, go);
-            StartCoroutine(getMap(go, unitlongiAngle, halfSubdivisions, lat, lon, level));
+            LoadMap(go, unitlongiAngle, halfSubdivisions, lat, lon, level);
         }
     }
 
-    IEnumerator getMap(GameObject go, double unitlongiAngle, double halfSubdivisions, int lat, int lon, int level)
+    void LoadMap(GameObject go, double unitlongiAngle, double halfSubdivisions, int lat, int lon, int level)
     {
         //第一个参数是层级，第二个是纬度，第三个是经度 
         string url = string.Format(mapUrl, level, lat, lon);
         bool local = false;
-        if (File.Exists(tempMapPath + level + "/" + lat + "/" + lon + ".jpg"))
+        if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
-            url = "file://" + tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
-            local = true;
+            if (File.Exists(tempMapPath + level + "/" + lat + "/" + lon + ".jpg"))
+            {
+                url = "file://" + tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
+                local = true;
+            }
+            if (!Directory.Exists(tempMapPath + level + "/" + lat))
+            {
+                Directory.CreateDirectory(tempMapPath + level + "/" + lat);
+            }
         }
-        if (!Directory.Exists(tempMapPath + level + "/" + lat))
-        {
-            Directory.CreateDirectory(tempMapPath + level + "/" + lat);
-        }
-
         Material mat = new Material(material);
         mat.color = Color.gray;
-        mat.renderQueue = 2000 + level * 40+ renderQueueAdd;//调整渲染列队
+        mat.renderQueue = 2000 + level * 40 + renderQueueAdd;//调整渲染列队
 
         Earth.CreatMesh(go, mat, unitlongiAngle, halfSubdivisions, lat, lon);
 
+        StartCoroutine(GetTexture(url, (texture2D) =>
+        {
+            if (texture2D)
+            {
+                texture2D.wrapMode = TextureWrapMode.Clamp;
+                mat.mainTexture = texture2D;
+                mat.color = Color.white;
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
+                {
+                    if (!local)
+                    {
+                        File.WriteAllBytes(tempMapPath + level + "/" + lat + "/" + lon + ".jpg", texture2D.EncodeToPNG());
+                    }
+                }
+            }
+        }));
+    }
+
+    IEnumerator GetTexture(string url, Action<Texture2D> action)
+    {
         using (var webRequest = UnityWebRequestTexture.GetTexture(url))
         {
             webRequest.certificateHandler = new WebRequestSkipCertificate();
@@ -265,15 +295,9 @@ public class MapLayer : MonoBehaviour
             else
             {
                 Texture2D texture2D = DownloadHandlerTexture.GetContent(webRequest);
-                if (texture2D)
+                if (action != null)
                 {
-                    texture2D.wrapMode = TextureWrapMode.Clamp;
-                    mat.mainTexture = texture2D;
-                    mat.color = Color.white;
-                    if (!local)
-                    {
-                        File.WriteAllBytes(tempMapPath + level + "/" + lat + "/" + lon + ".jpg", texture2D.EncodeToPNG());
-                    }
+                    action(texture2D);
                 }
             }
         }
