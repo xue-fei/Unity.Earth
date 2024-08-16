@@ -12,9 +12,9 @@ public class EarthManager : MonoBehaviour
         //Application.targetFrameRate = 60; 
         earth = new GameObject("Earth");
         mapLayer = earth.AddComponent<MapLayer>();
-        mapLayer.Init(earth, MapChannel.ArcGIS, MapType.Satellite, material,100);
-        //MapLayer mapLayer1 = earth.AddComponent<MapLayer>();
-        //mapLayer1.Init(earth, MapChannel.AutoNavi, MapType.RoadMap, material,500);
+        mapLayer.Init(earth, MapChannel.AutoNavi, MapType.Satellite, material, 100);
+        MapLayer mapLayer1 = earth.AddComponent<MapLayer>();
+        mapLayer1.Init(earth, MapChannel.AutoNavi, MapType.RoadMap, material, 500);
     }
 
     private void OnApplicationQuit()

@@ -54,12 +54,7 @@ public class Earth
     /// <returns></returns>
     public static double mercatorTolat(double mercatorY)
     {
-        //int halfSubdivisions = (int)Math.Pow(2, nowLevel);
-        //if (mercatorY == 0 || mercatorY == 2 * halfSubdivisions)
-        //{
-        //    mercatorY = mercatorY == 0 ? 90 : -90;
-        //}
-        double y = mercatorY / Earth.halfEquatorCircle * 180.0000000d;
+        double y = mercatorY / halfEquatorCircle * 180.0000000d;
         y = 180.00000d / Math.PI * (2 * Math.Atan(Math.Exp(y * Math.PI / 180.000000d)) - Math.PI * 0.5000000d);
         return y;
     }
