@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -28,11 +29,20 @@ public class MapCacheWindow : EditorWindow
     [MenuItem("工具/地图缓存工具", false, 0)]
     static void Init()
     {
-        mapWindow = (MapCacheWindow)EditorWindow.GetWindow(typeof(MapCacheWindow), false, "打包工具", true);
+        mapWindow = (MapCacheWindow)EditorWindow.GetWindow(typeof(MapCacheWindow), false, "地图缓存工具", true);
         mapWindow.Show();
 
         tempMapPath = Application.dataPath + "/../TempMap/";
 
+        channelStrings.Clear();
+        channelStrings = Enum.GetNames(typeof(MapChannel)).ToList();
+
+        typeStrings.Clear();
+        typeStrings = Enum.GetNames(typeof(MapType)).ToList();
+    }
+
+    private void OnFocus()
+    {
         channelStrings.Clear();
         channelStrings = Enum.GetNames(typeof(MapChannel)).ToList();
 
@@ -81,6 +91,13 @@ public class MapCacheWindow : EditorWindow
             EarthStart();
             EditorUtility.ClearProgressBar();
         }
+
+        //if (GUILayout.Button("测试"))
+        //{
+        //    EditorCoroutineRunner.StartEditorCoroutine(
+        //        GetTexture("http://wprd03.is.autonavi.com/appmaptile?style=6&x=15&y=15&z=5", 
+        //        Application.dataPath + "/../test1.jpg"));
+        //}
     }
 
     public void EarthStart()
@@ -110,10 +127,17 @@ public class MapCacheWindow : EditorWindow
                     }
                     string path = tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
                     path = path.Replace("\\", "/");
+                    path = Path.GetFullPath(path);
                     if (!File.Exists(path))
                     {
+                        Debug.Log("文件不存在：" + path);
                         WebClient webClient = new WebClient();
                         webClient.DownloadFile(url, path);
+                        //EditorCoroutineRunner.StartEditorCoroutine(GetTexture(url, path));
+                    }
+                    else
+                    {
+                        Debug.Log("文件已存在：" + path);
                     }
                 }
             }
@@ -136,7 +160,7 @@ public class MapCacheWindow : EditorWindow
         halfSubdivisions = subdivisions * 0.500000d;
     }
 
-    IEnumerator GetTexture(string url, Action<Texture2D> action)
+    IEnumerator GetTexture(string url, string path)
     {
         Debug.Log("开始下载：" + url);
         using (var webRequest = UnityWebRequestTexture.GetTexture(url))
@@ -144,7 +168,10 @@ public class MapCacheWindow : EditorWindow
             webRequest.certificateHandler = new WebRequestSkipCertificate();
             webRequest.timeout = 5000;
             yield return webRequest.SendWebRequest();
-            yield return new WaitForSeconds(0.1f);
+            while(!webRequest.isDone)
+            {
+                yield return null;
+            }
             if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.Log(webRequest.error);
@@ -152,10 +179,7 @@ public class MapCacheWindow : EditorWindow
             else
             {
                 Texture2D texture2D = DownloadHandlerTexture.GetContent(webRequest);
-                if (action != null)
-                {
-                    action(texture2D);
-                }
+                File.WriteAllBytes(path, texture2D.EncodeToJPG());
                 Debug.Log("下载完成：" + url);
             }
         }
