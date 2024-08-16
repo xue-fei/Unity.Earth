@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 
 public class MapLayer : MonoBehaviour
 {
+    Camera mainCamera;
     public GameObject earth;
     public GameObject layer;
     public MapType mapType = MapType.None;
@@ -33,6 +34,7 @@ public class MapLayer : MonoBehaviour
 
     public void Init(GameObject earth, MapChannel mapChannel, MapType mapType, Material material, int renderQueueAdd)
     {
+        mainCamera = Camera.main;
         this.earth = earth;
         this.mapChannel = mapChannel;
         this.mapType = mapType;
@@ -74,6 +76,22 @@ public class MapLayer : MonoBehaviour
     void FixedUpdate()
     {
         CamerPosToMap();
+        //&& Time.time > nextFire
+        //if (actions.Count > 0)
+        //{
+        //    //nextFire = Time.time + fireRate;
+        //    Action action = actions.Dequeue();
+        //    action.Invoke();
+        //}
+    }
+
+    private float fireRate = 0f;
+    private float nextFire = 0.01f;
+    Queue<Action> actions = new Queue<Action>();
+
+    private void Update()
+    {
+
     }
 
     Vector3 zeroPoint;
@@ -87,7 +105,7 @@ public class MapLayer : MonoBehaviour
     void CamerPosToMap()
     {
         zeroPoint = new Vector3(Earth.radius, 0, 0);
-        camerVec = Camera.main.transform.position - Vector3.zero;
+        camerVec = mainCamera.transform.position - Vector3.zero;
         camDis = camerVec.magnitude;
         LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
         if (LonAngle < 0)
@@ -243,13 +261,13 @@ public class MapLayer : MonoBehaviour
     {
         //第一个参数是层级，第二个是纬度，第三个是经度 
         string url = string.Format(mapUrl, level, lat, lon);
-        bool local = false;
+        bool localHad = false;
         if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
             if (File.Exists(tempMapPath + level + "/" + lat + "/" + lon + ".jpg"))
             {
                 url = "file://" + tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
-                local = true;
+                localHad = true;
             }
             if (!Directory.Exists(tempMapPath + level + "/" + lat))
             {
@@ -262,32 +280,28 @@ public class MapLayer : MonoBehaviour
 
         Earth.CreatMesh(go, mat, unitlongiAngle, halfSubdivisions, lat, lon);
 
-        StartCoroutine(GetTexture(url, (texture2D) =>
+        //actions.Enqueue(() =>
+        //{
+        string savePath = tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
+        StartCoroutine(GetTexture(url, localHad, savePath, (texture2D) =>
         {
             if (texture2D)
             {
                 texture2D.wrapMode = TextureWrapMode.Clamp;
                 mat.mainTexture = texture2D;
                 mat.color = Color.white;
-                if (Application.platform != RuntimePlatform.WebGLPlayer)
-                {
-                    if (!local)
-                    {
-                        File.WriteAllBytes(tempMapPath + level + "/" + lat + "/" + lon + ".jpg", texture2D.EncodeToPNG());
-                    }
-                }
             }
         }));
+        //});
     }
 
-    IEnumerator GetTexture(string url, Action<Texture2D> action)
+    IEnumerator GetTexture(string url, bool localHad, string savePath, Action<Texture2D> action)
     {
         using (var webRequest = UnityWebRequestTexture.GetTexture(url))
         {
             webRequest.certificateHandler = new WebRequestSkipCertificate();
             webRequest.timeout = 5000;
             yield return webRequest.SendWebRequest();
-            yield return new WaitForEndOfFrame();
             if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.Log(webRequest.error);
@@ -298,6 +312,13 @@ public class MapLayer : MonoBehaviour
                 if (action != null)
                 {
                     action(texture2D);
+                }
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
+                {
+                    if (!localHad)
+                    {
+                        File.WriteAllBytesAsync(savePath, webRequest.downloadHandler.data);
+                    }
                 }
             }
         }
