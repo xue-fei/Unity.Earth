@@ -10,7 +10,7 @@ public class CameraControl : MonoBehaviour
     /// </summary>
     public float distance;
 
-    float distanceMin = 0.1f;
+    float distanceMin = 0.05f;
     float distanceMax = 16000f;
     public Vector3 currentEulerAngles;
 
