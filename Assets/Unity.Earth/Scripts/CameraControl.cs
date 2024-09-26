@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraControl : MonoBehaviour
 {
@@ -9,10 +10,14 @@ public class CameraControl : MonoBehaviour
     /// 距离
     /// </summary>
     public float distance;
-
+    /// <summary>
+    /// 相机距海平面高度
+    /// </summary>
+    public float height;
     float distanceMin = 0.05f;
     float distanceMax = 16000f;
     public Vector3 currentEulerAngles;
+    public Text text;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +30,7 @@ public class CameraControl : MonoBehaviour
     void Update()
     {
         distance = Vector3.Distance(Vector3.zero, transform.position);
+
         if (Input.GetMouseButton(1))
         {
             PointRot();
@@ -37,6 +43,12 @@ public class CameraControl : MonoBehaviour
         {
             transform.Translate(Vector3.forward * Speed());
         }
+    }
+
+    void LateUpdate()
+    {
+        height = distance - Earth.radius;
+        text.text = "高度：" + (height * 10f).ToString("F2") + "千米";
     }
 
     float Speed()

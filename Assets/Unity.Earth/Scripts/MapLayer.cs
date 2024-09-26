@@ -121,7 +121,7 @@ public class MapLayer : MonoBehaviour
         }
         Earth.Rectify(ref LonAngle, ref LatAngle, 3);
         // Debug.Log(LatAngle);
-        NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - Earth.radius) * 30 / Earth.radius)) + MinLevel;
+        NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - Earth.radius) * 50 / Earth.radius)) + MinLevel;
         if (NowLevel < 0)
         {
             return;
