@@ -12,9 +12,9 @@ public class EarthManager : MonoBehaviour
         Application.targetFrameRate = 60; 
         earth = new GameObject("Earth");
         mapLayer = earth.AddComponent<MapLayer>();
-        mapLayer.Init(earth, MapChannel.AutoNavi, MapType.Satellite, material, 50);
+        mapLayer.Init(earth, MapChannel.AutoNavi, MapType.Satellite, material, 100);
         MapLayer mapLayer1 = earth.AddComponent<MapLayer>();
-        mapLayer1.Init(earth, MapChannel.AutoNavi, MapType.RoadMap, material, 300);
+        mapLayer1.Init(earth, MapChannel.AutoNavi, MapType.RoadMap, material, 50);
     }
 
     private void OnDestroy()

@@ -106,7 +106,8 @@ public class MapLayer : MonoBehaviour
     {
         zeroPoint = new Vector3(Earth.radius, 0, 0);
         camerVec = mainCamera.transform.position - Vector3.zero;
-        camDis = camerVec.magnitude;
+        //camDis = camerVec.magnitude;
+        camDis = Vector3.Distance(Vector3.zero, mainCamera.transform.position);//camerVec.magnitude;
         LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
         if (LonAngle < 0)
         {
@@ -121,7 +122,10 @@ public class MapLayer : MonoBehaviour
         }
         Earth.Rectify(ref LonAngle, ref LatAngle, 3);
         // Debug.Log(LatAngle);
-        NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - Earth.radius) * 50 / Earth.radius)) + MinLevel;
+        NowLevel = altitudeToZoom((camDis - Earth.radius) * 10000);
+        NowLevel = Math.Clamp(NowLevel, MinLevel, MaxLevel);
+        //Debug.Log(NowLevel);
+        //NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - Earth.radius) * 50 / Earth.radius)) + MinLevel;
         if (NowLevel < 0)
         {
             return;
@@ -146,6 +150,17 @@ public class MapLayer : MonoBehaviour
             }
         }
     }
+
+    int altitudeToZoom(float altitude)
+    {
+        double A = 40487.57d;
+        double B = 0.00007096758d;
+        double C = 91610.74d;
+        double D = -40467.74d;
+
+        return (int)Math.Round(D + (A - D) / (1 + Math.Pow(altitude / C, B)));
+    }
+
 
     public int NowLevel
     {
@@ -174,15 +189,16 @@ public class MapLayer : MonoBehaviour
             {
                 foreach (var item in MapFas)
                 {
-                    long i = Math.Abs(value - item.Key);
-                    if (i > 2)
-                    {
-                        item.Value.SetActive(false);
-                    }
-                    else
-                    {
-                        item.Value.SetActive(true);
-                    }
+                    //long i = Math.Abs(value - item.Key);
+                    //if (i > 2)
+                    //{
+                    //    item.Value.SetActive(false);
+                    //}
+                    //else
+                    //{
+                    //    item.Value.SetActive(true);
+                    //}
+                    item.Value.SetActive(item.Key == value);
                 }
                 nowLevel = value;
             }
@@ -277,7 +293,8 @@ public class MapLayer : MonoBehaviour
         Material mat = new Material(material);
         mat.color = Color.gray;
         mat.renderQueue = 2000 + level * 40 + renderQueueAdd;//调整渲染列队
-
+        mat.SetFloat("_OffsetFactor", renderQueueAdd);
+        mat.SetFloat("_OffsetUnits", renderQueueAdd);
         Earth.CreatMesh(go, mat, unitlongiAngle, halfSubdivisions, lat, lon);
 
         //actions.Enqueue(() =>

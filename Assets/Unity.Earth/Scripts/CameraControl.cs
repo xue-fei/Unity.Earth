@@ -14,7 +14,7 @@ public class CameraControl : MonoBehaviour
     /// 相机距海平面高度
     /// </summary>
     public float height;
-    float distanceMin = 0.05f;
+    float distanceMin = 0.04f;
     float distanceMax = 16000f;
     public Vector3 currentEulerAngles;
     public Text text;
