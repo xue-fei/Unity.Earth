@@ -50,11 +50,11 @@ public class MapLayer : MonoBehaviour
                 mapUrl = MapUrl.AutoNavi;
                 if (mapType == MapType.Satellite)
                 {
-                    mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
+                    mapUrl = "https://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
                 }
                 if (mapType == MapType.RoadMap)
                 {
-                    mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=8&x={2}&y={1}&z={0}";
+                    mapUrl = "https://wprd03.is.autonavi.com/appmaptile?style=8&x={2}&y={1}&z={0}";
                 }
                 break;
         }
@@ -124,12 +124,7 @@ public class MapLayer : MonoBehaviour
         // Debug.Log(LatAngle);
         NowLevel = altitudeToZoom((camDis - Earth.radius) * 10000);
         NowLevel = Math.Clamp(NowLevel, MinLevel, MaxLevel);
-        //Debug.Log(NowLevel);
-        //NowLevel = (int)((MaxLevel - MinLevel) / Math.Exp((camDis - Earth.radius) * 50 / Earth.radius)) + MinLevel;
-        if (NowLevel < 0)
-        {
-            return;
-        }
+        
         double subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
@@ -138,7 +133,7 @@ public class MapLayer : MonoBehaviour
         // Debug.Log(LonAngle+"&"+ unitlongiAngle);
         int lat = Earth.GetLatValue(LatAngle, halfSubdivisions);
         // ReadMap(LatValue , LonValue-1 , Level);
-        int length = (int)(NowLevel * 0.5f);
+        int length = NowLevel; //(int)(NowLevel * 0.5f);
         for (int i = -length; i < length; i++)
         {
             for (int j = -length; j < length; j++)

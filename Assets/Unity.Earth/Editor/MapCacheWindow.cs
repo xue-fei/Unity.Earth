@@ -75,11 +75,11 @@ public class MapCacheWindow : EditorWindow
                     mapUrl = MapUrl.AutoNavi;
                     if (type == MapType.Satellite)
                     {
-                        mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
+                        mapUrl = "https://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
                     }
                     if (type == MapType.RoadMap)
                     {
-                        mapUrl = "http://wprd03.is.autonavi.com/appmaptile?style=8&x={2}&y={1}&z={0}";
+                        mapUrl = "https://wprd03.is.autonavi.com/appmaptile?style=8&x={2}&y={1}&z={0}";
                     }
                     break;
             }

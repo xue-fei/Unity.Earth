@@ -6,5 +6,5 @@ public class MapUrl
     /// <summary>
     /// style 6卫星 7行政区划 8路网
     /// </summary>
-    public static string AutoNavi = "http://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
+    public static string AutoNavi = "https://wprd03.is.autonavi.com/appmaptile?style=6&x={2}&y={1}&z={0}";
 }

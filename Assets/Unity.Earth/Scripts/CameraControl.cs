@@ -31,7 +31,7 @@ public class CameraControl : MonoBehaviour
     {
         distance = Vector3.Distance(Vector3.zero, transform.position);
 
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(0))
         {
             PointRot();
         }
