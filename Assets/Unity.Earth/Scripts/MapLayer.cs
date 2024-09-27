@@ -75,19 +75,11 @@ public class MapLayer : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        CamerPosToMap();
-        //&& Time.time > nextFire
-        //if (actions.Count > 0)
-        //{
-        //    //nextFire = Time.time + fireRate;
-        //    Action action = actions.Dequeue();
-        //    action.Invoke();
-        //}
+        if (Input.GetMouseButton(0) || Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            CamerPosToMap();
+        }
     }
-
-    private float fireRate = 0f;
-    private float nextFire = 0.01f;
-    Queue<Action> actions = new Queue<Action>();
 
     private void Update()
     {
@@ -108,37 +100,39 @@ public class MapLayer : MonoBehaviour
         camerVec = mainCamera.transform.position - Vector3.zero;
         //camDis = camerVec.magnitude;
         camDis = Vector3.Distance(Vector3.zero, mainCamera.transform.position);//camerVec.magnitude;
+        //相机经度
         LonAngle = Vector3.Angle(zeroPoint, new Vector3(camerVec.x, 0, camerVec.z));
         if (LonAngle < 0)
         {
             LonAngle = 360 + LonAngle;
         }
+        //相机维度
         LatAngle = Vector3.Angle(new Vector3(camerVec.x, 0, camerVec.z), camerVec);
-        //double LatAngle1 = Earth.GetAngle(zeroPoint, new Vector3(Earth.radius, camerVec.y, 0));
 
         if (camerVec.y < 0)
         {
             LatAngle = -LatAngle;
         }
         Earth.Rectify(ref LonAngle, ref LatAngle, 3);
-        // Debug.Log(LatAngle);
+        //Debug.Log("经度:" + LonAngle + "维度:" + LatAngle);
         NowLevel = altitudeToZoom((camDis - Earth.radius) * 10000);
         NowLevel = Math.Clamp(NowLevel, MinLevel, MaxLevel);
-        
+
         double subdivisions;
         double unitlongiAngle;
         double halfSubdivisions;
         ReturnSubParam(NowLevel, out subdivisions, out unitlongiAngle, out halfSubdivisions);
         int lon = (int)subdivisions - (int)(LonAngle / unitlongiAngle);
-        // Debug.Log(LonAngle+"&"+ unitlongiAngle);
+        lon = Math.Clamp(lon, 0, (int)subdivisions - 1);
         int lat = Earth.GetLatValue(LatAngle, halfSubdivisions);
-        // ReadMap(LatValue , LonValue-1 , Level);
-        int length = NowLevel; //(int)(NowLevel * 0.5f);
+        lat = Math.Clamp(lat, 0, (int)subdivisions - 1);
+        //Debug.Log("lon:"+ lon+" lat:"+lat);
+        int length = (int)Math.Sqrt(NowLevel);
         for (int i = -length; i < length; i++)
         {
             for (int j = -length; j < length; j++)
             {
-                if (lon < subdivisions - 1 && lon + i >= 0 && lat < subdivisions && lat + j >= 0)
+                if (lon < subdivisions - 1 && lon + i >= 0 && lat < subdivisions - 1 && lat + j >= 0)
                 {
                     ReadMap(lat + j, lon + i, NowLevel);
                 }
@@ -184,16 +178,16 @@ public class MapLayer : MonoBehaviour
             {
                 foreach (var item in MapFas)
                 {
-                    //long i = Math.Abs(value - item.Key);
-                    //if (i > 2)
-                    //{
-                    //    item.Value.SetActive(false);
-                    //}
-                    //else
-                    //{
-                    //    item.Value.SetActive(true);
-                    //}
-                    item.Value.SetActive(item.Key == value);
+                    long i = Math.Abs(value - item.Key);
+                    if (i > 1)
+                    {
+                        item.Value.SetActive(false);
+                    }
+                    else
+                    {
+                        item.Value.SetActive(true);
+                    }
+                    //item.Value.SetActive(item.Key == value);
                 }
                 nowLevel = value;
             }
@@ -210,6 +204,8 @@ public class MapLayer : MonoBehaviour
         //赤道细分2的指数倍
         ReturnSubParam(level, out subdivisions, out unitlongiAngle, out halfSubdivisions);
         NowLevel = level;
+        Debug.Log("subdivisions:" + subdivisions);
+        Debug.Log("halfSubdivisions:" + halfSubdivisions);
         for (int lon = 0; lon < subdivisions; lon++)
         {
             for (int lat = 0; lat < subdivisions; lat++)
@@ -253,6 +249,7 @@ public class MapLayer : MonoBehaviour
         double unitlongiAngle;
         double halfSubdivisions;
         ReturnSubParam(Level, out subdivisions, out unitlongiAngle, out halfSubdivisions);
+        //Debug.Log("LonValue:" + LonValue);
         ReadMap(unitlongiAngle, halfSubdivisions, LatValue, LonValue, Level);
     }
 
@@ -286,14 +283,12 @@ public class MapLayer : MonoBehaviour
             }
         }
         Material mat = new Material(material);
-        mat.color = Color.gray;
+        mat.color = new Color(1, 1, 1, 0f);
         mat.renderQueue = 2000 + level * 40 + renderQueueAdd;//调整渲染列队
         mat.SetFloat("_OffsetFactor", renderQueueAdd);
         mat.SetFloat("_OffsetUnits", renderQueueAdd);
         Earth.CreatMesh(go, mat, unitlongiAngle, halfSubdivisions, lat, lon);
 
-        //actions.Enqueue(() =>
-        //{
         string savePath = tempMapPath + level + "/" + lat + "/" + lon + ".jpg";
         StartCoroutine(GetTexture(url, localHad, savePath, (texture2D) =>
         {
@@ -304,21 +299,17 @@ public class MapLayer : MonoBehaviour
                 mat.color = Color.white;
             }
         }));
-        //});
     }
 
     IEnumerator GetTexture(string url, bool localHad, string savePath, Action<Texture2D> action)
     {
+        yield return new WaitForEndOfFrame();
         using (var webRequest = UnityWebRequestTexture.GetTexture(url))
         {
             webRequest.certificateHandler = new WebRequestSkipCertificate();
-            webRequest.timeout = 5000;
+            webRequest.timeout = 15000;
             yield return webRequest.SendWebRequest();
-            if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.Log(webRequest.error);
-            }
-            else
+            if (webRequest.result == UnityWebRequest.Result.Success)
             {
                 Texture2D texture2D = DownloadHandlerTexture.GetContent(webRequest);
                 if (action != null)
@@ -333,9 +324,11 @@ public class MapLayer : MonoBehaviour
                     }
                 }
             }
+            else
+            {
+                Debug.Log(webRequest.error);
+            }
         }
     }
-
     #endregion
-
 }

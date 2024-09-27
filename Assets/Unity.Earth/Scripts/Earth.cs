@@ -123,7 +123,7 @@ public class Earth
     {
         double mercatorY = latToMercator(LatAngle);
         int LatValue1 = (int)Math.Ceiling(((mercatorY * halfSubdivisions) / Earth.halfEquatorCircle));
-        int LatValue = (int)(halfSubdivisions - (LatAngle * halfSubdivisions / 180));
+        //int LatValue = (int)(halfSubdivisions - (LatAngle * halfSubdivisions / 180));
         return (int)(halfSubdivisions - LatValue1);
     }
 
